@@ -264,7 +264,8 @@
         "Conservation officer, historic buildings",
         "Engineer, civil (consulting)",
         "Engineer, site",
-        "Contracting civil engineer"
+        "Contracting civil engineer",
+        "Engineer, water"
     ],
     "Creative Arts, Design & Media": [
         "Designer, multimedia",
@@ -460,7 +461,8 @@
         "Aeronautical engineer",
         "Engineer, aeronautical",
         "Engineer, materials",
-        "Broadcast engineer"
+        "Broadcast engineer",
+        "Software engineer"
     ],
     "Hospitality, Tourism & Leisure": [
         "Event organiser",
@@ -513,7 +515,8 @@
         "Tax adviser",
         "Investment banker, corporate",
         "Investment banker, operational",
-        "Accountant, chartered"
+        "Accountant, chartered",
+        "Operational investment banker"
     ],
-    "Other":[]
+    "Other": []
 }
