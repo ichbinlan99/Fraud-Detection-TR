@@ -4,24 +4,57 @@ from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.graph_objects as go
 
+import numpy as np
+
 class FraudMap:
     def __init__(self, fraud_transactions):
         self.fraud_transactions = fraud_transactions
         # Clean up the credit card numbers
         self.fraud_transactions['cc_num'] = self.fraud_transactions['cc_num'].astype(str).str.strip()
+
+        # Prepare adjusted coordinates for points
+        self.fraud_transactions = self.add_flower_pattern(self.fraud_transactions)
+
         self.app = dash.Dash(__name__)
-        self.fig = self.create_map_figure(show_cardholders=True, show_merchants=True)
+        self.fig = self.create_map_figure(show_cardholders=True, show_merchants=False)
         self.setup_layout()
         self.setup_callbacks()
+
+    def add_flower_pattern(self, transactions):
+        # Group by lat and long
+        grouped = transactions.groupby(['lat', 'long'])
+
+        # Add offsets for points at the same location
+        new_coords = []
+        for (lat, long), group in grouped:
+            n = len(group)
+            if n > 1:
+                # Generate "flower" pattern offsets
+                angles = np.linspace(0, 2 * np.pi, n, endpoint=False)
+                radius = 0.001  # Adjust radius as needed
+                lat_offsets = radius * np.sin(angles)
+                long_offsets = radius * np.cos(angles)
+
+                # Apply offsets
+                for i, row in enumerate(group.itertuples()):
+                    new_coords.append((row.Index, lat + lat_offsets[i], long + long_offsets[i]))
+            else:
+                # No adjustment needed
+                row = group.iloc[0]
+                new_coords.append((row.name, lat, long))
+
+        # Create new dataframe with adjusted coordinates
+        coords_df = pd.DataFrame(new_coords, columns=['index', 'lat_adjusted', 'long_adjusted']).set_index('index')
+        return transactions.join(coords_df)
 
     def create_map_figure(self, show_cardholders, show_merchants):
         fig = go.Figure()
 
         if show_cardholders:
-            # Cardholders layer with clickable points
+            # Cardholders layer with adjusted coordinates
             fig.add_trace(go.Scattermapbox(
-                lat=self.fraud_transactions["lat"],
-                lon=self.fraud_transactions["long"],
+                lat=self.fraud_transactions["lat_adjusted"],
+                lon=self.fraud_transactions["long_adjusted"],
                 mode='markers',
                 text=self.fraud_transactions["cc_num"],
                 customdata=self.fraud_transactions[["amt", "city", "job", "first", "last"]],
@@ -36,7 +69,7 @@ class FraudMap:
             ))
 
         if show_merchants:
-            # Merchants layer with clickable points
+            # Merchants layer (unchanged)
             fig.add_trace(go.Scattermapbox(
                 lat=self.fraud_transactions["merch_lat"],
                 lon=self.fraud_transactions["merch_long"],
@@ -117,7 +150,4 @@ class FraudMap:
 
     def run(self, port=8050):
         self.app.run_server(debug=True, port=port)
-
-
-
 

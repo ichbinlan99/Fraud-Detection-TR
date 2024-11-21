@@ -23,7 +23,7 @@ def categorize_jobs(df, job_col, job_to_category, default_category=None):
         
     return df
 
-def encode(df, col, cat_col, encoding='label'):
+def encode(df, col, cat_col, encoding='ordinal'):
     if encoding == 'label':
         # Label Encoding
         label_encoder = LabelEncoder()
