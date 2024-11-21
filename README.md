@@ -21,6 +21,10 @@ This repository contains the implementation of a fraud detection system for cred
 The fraud detection system leverages machine learning algorithms to analyze transaction patterns and detect anomalies that may indicate fraudulent behavior. The goal is to enhance the security and integrity of trading operations.
 
 <p align="center">
+    <img src="out/daily_transactions.png" width=1000>
+</p>
+
+<p align="center">
     <img src="out/workflow.png" width=800>
 </p>
 
