@@ -3,26 +3,31 @@ import holidays
 
 def generic_customer_spending_behaviour(df, window_lengths=[7, 30, 90, 180]):
     """
-    Calculates features related to customer spending behavior, including:
-    - avg_distance_[window_length]_days: Rolling average distance for the past [window_length] days.
-    - distance_over_avg_[window_length]_days: Distance of transaction over rolling average distance for the past [window_length] days.
-    - avg_amount_[window_length]_days: Rolling average amount for the past [window_length] days.
-    - count_amount_[window_length]_days: Number of transactions for the past [window_length] days.
-    - amount_over_average_[window_length]_days: Amount of transaction over rolling average amount for the past [window_length] days.
-    - transaction_hour: Hour of the transaction.
-    - transaction_day_of_week: Day of the week of the transaction (0-6, Monday-Sunday).
-    - is_holiday: Whether the transaction occurred on a US public holiday.
-    - is_weekend: Whether the transaction occurred on a weekend.
-    - daily_trans_count: Number of transactions for the same credit card on the same day.
+    Generates features characterizing customer spending behavior based on transaction data.
+
+    This function calculates rolling average metrics for transaction distance and amount, 
+    along with other features providing insights into transaction timing and frequency.
 
     Args:
-        df: The input DataFrame.
-        window_lengths: A list of window lengths (in days) for calculating rolling averages.
+        df: Input DataFrame containing transaction data.  Must include columns: 'cc_num', 'trans_date_trans_time', 'distance', 'amt', 'city', 'merchant'.
+        window_lengths (list, optional): List of window lengths (in days) used for calculating rolling averages. Defaults to [7, 30, 90, 180].
 
     Returns:
-        DataFrame with added features.
-    """
+        DataFrame: The input DataFrame with added features.  New columns include:
+            - `avg_distance_{window_length}_days`: Rolling average distance for the past {window_length} days.
+            - `distance_over_avg_{window_length}_days`: Ratio of transaction distance to the rolling average distance.
+            - `avg_amount_{window_length}_days`: Rolling average transaction amount for the past {window_length} days.
+            - `count_amount_{window_length}_days`: Number of transactions in the past {window_length} days.
+            - `amount_over_average_{window_length}_days`: Ratio of transaction amount to the rolling average amount.
+            - `inter_transaction_time_{window_length}_days`: Time (in seconds) since the last transaction.
+            - `card_count_sparsity`: Average transaction counts per card per day.
+            - `merchant_count_sparsity`: Average transaction counts per merchant per day.
+            - `card_amount_sparsity`: Average transaction amounts per card per day.
+            - `merchant_amount_sparsity`: Average transaction amounts per merchant per day.
 
+            Note:  {window_length} represents each value in `window_lengths`.
+
+    """
     # --- Distance-based features ---
     for window_length in window_lengths:
         # -- distance features --
@@ -84,7 +89,28 @@ def generic_customer_spending_behaviour(df, window_lengths=[7, 30, 90, 180]):
     return df
 
 def general_customer_bahaviour(df):
+    """Augments a transaction dataframe with customer behavior features.
 
+    This function adds several time-based and transaction-count features to the input DataFrame.  
+    These features are useful for understanding customer behavior patterns.
+
+    Args:
+        df: Pandas DataFrame containing transaction data.  Must include a 'trans_date_trans_time' column 
+            of datetime objects, a 'cc_num' column (credit card number), a 'merchant' column, and an 'amt' column (transaction amount).
+            It also needs a 'trans_num' column for transaction counting.
+
+
+    Returns:
+        Pandas DataFrame: The input DataFrame augmented with the following columns:
+            - `transaction_hour`: Hour of the transaction.
+            - `transaction_day_of_week`: Day of the week of the transaction (0=Monday, 6=Sunday).
+            - `is_holiday`: 1 if the transaction occurred on a US holiday, 0 otherwise.
+            - `is_weekend`: 1 if the transaction occurred on a weekend, 0 otherwise.
+            - `trans_date`: Date of the transaction.
+            - `daily_trans_count`: Number of transactions for the given credit card on that day.
+
+
+    """
     # --- Time-based features ---
     df["transaction_hour"] = df["trans_date_trans_time"].dt.hour
     df["transaction_day_of_week"] = df["trans_date_trans_time"].dt.dayofweek
