@@ -7,6 +7,31 @@ import plotly.graph_objects as go
 import numpy as np
 
 class FraudMap:
+    """
+    A class to visualize fraud transactions on a map using Dash and Plotly.
+    Attributes:
+    -----------
+    fraud_transactions : pd.DataFrame
+        A DataFrame containing fraud transaction data with columns for latitude, longitude, credit card number, and other relevant details.
+    app : dash.Dash
+        The Dash application instance.
+    fig : plotly.graph_objs.Figure
+        The initial map figure with cardholders and/or merchants plotted.
+    Methods:
+    --------
+    __init__(fraud_transactions):
+        Initializes the FraudMap with the given fraud transactions DataFrame, sets up the Dash app, and prepares the map figure.
+    add_flower_pattern(transactions):
+        Adjusts the coordinates of transactions that occur at the same location to create a "flower" pattern for better visualization.
+    create_map_figure(show_cardholders, show_merchants):
+        Creates and returns a Plotly map figure with cardholders and/or merchants plotted based on the given flags.
+    setup_layout():
+        Sets up the layout of the Dash app, including the checklist for toggling cardholders and merchants, the map, and a div for displaying click data.
+    setup_callbacks():
+        Sets up the callbacks for the Dash app to update the map based on the checklist and to display details when a point is clicked.
+    run(port=8050):
+        Runs the Dash app on the specified port.
+    """
     def __init__(self, fraud_transactions):
         self.fraud_transactions = fraud_transactions
         # Clean up the credit card numbers
