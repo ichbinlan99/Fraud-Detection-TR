@@ -63,9 +63,9 @@ def update_job_categories(test_jobs, json_file_path, threshold=70):
 
 if __name__ == "__main__":
     logger.info("load new data")
-    test_df = pd.read_csv("./tr_fincrime_test.csv")
+    test_df = pd.read_csv("data/raw/tr_fincrime_test.csv")
     test_jobs = test_df["job"].unique().tolist()
     logger.info("read job normalisation gazetteer")
-    json_file_path = "utils/jobs_by_category.json"
+    json_file_path = "jobs_by_category.json"
     update_job_categories(test_jobs, json_file_path, threshold=70)
     logger.info("Job categories updated successfully.")

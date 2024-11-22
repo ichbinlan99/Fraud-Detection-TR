@@ -21,12 +21,12 @@ logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore")
 
 # Load datasets
-def load_data():
+def load_data(path = './data/raw/tr_fincrime_test.csv'):
     """
     Load train and test datasets.
     """
     logger.info("Loading datasets...")
-    test_df = pd.read_csv('./data/raw/tr_fincrime_test.csv')
+    test_df = pd.read_csv(path)
     logger.info(f"Loaded test and train datasets with shapes {test_df.shape}.")
     return test_df
 
@@ -80,60 +80,41 @@ def scaleData(train_df, features):
         pickle.dump(scaler, f)
     return train_df
 
-# Main preprocessing flow
-def preprocess_data():
-    test_df = load_data()
+def compute_daily_fraud_stats(df, date_col='trans_date_trans_time', fraud_col='is_fraud', card_col='cc_num'):
+    """
+    Computes daily fraud statistics from a transaction DataFrame.
 
-    # Preprocessing: Encoding gender
-    test_df_enc_gender, _ = encode(test_df, "gender", "gender", encoding="onehot")
+    Parameters:
+    - df (pd.DataFrame): The input DataFrame containing transaction data.
+    - date_col (str): Column name for the transaction datetime. Default is 'trans_date_trans_time'.
+    - fraud_col (str): Column name indicating whether a transaction is fraudulent. Default is 'is_fraud'.
+    - card_col (str): Column name for credit card numbers. Default is 'cc_num'.
 
-    # Load job normalization gazetteer
-    with open('./jobs_by_category.json', 'r') as f:
-        job_categories = json.load(f)
+    Returns:
+    - pd.DataFrame: A DataFrame with daily transaction counts, fraud transaction counts,
+      and unique fraudulent card counts.
+    """
+    # Ensure the datetime column is converted to datetime type
+    df[date_col] = pd.to_datetime(df[date_col])
+    
+    # Extract the date part
+    df['trans_date'] = df[date_col].dt.date
 
-    # Categorize and encode jobs
-    test_df_cat_job = categorize_and_encode_jobs(test_df_enc_gender, 'job', job_categories, 'saved_model/job_encoder.pkl')
+    # Compute the number of transactions per day
+    transactions_per_day = df.groupby('trans_date').size().reset_index(name='num_transactions')
+    transactions_per_day['num_transactions_scaled'] = transactions_per_day['num_transactions'] / 100
 
-    # Load merchant category encoder and apply
-    with open("saved_model/merchant_cat_encoder.pkl", 'rb') as file:
-        merchant_cat_encoder = pickle.load(file)
-    test_df_cat_job['category_encoded'] = merchant_cat_encoder.transform(test_df_cat_job[['category']])
+    # Compute the number of fraudulent transactions and cards per day
+    fraud_data = df[df[fraud_col] == 1]
+    fraud_transactions_per_day = fraud_data.groupby('trans_date').size().reset_index(name='num_fraud_transactions')
+    fraud_cards_per_day = fraud_data.groupby('trans_date')[card_col].nunique().reset_index(name='num_fraud_cards')
 
-    # Calculate age and group into age ranges
-    age_bins = [0, 25, 45, 65, float("inf")]
-    age_labels = [1, 0, 2, 3]  # Fraud risk labels
-    test_df_cat_job = assign_age_group(test_df_cat_job, "dob", "trans_date_trans_time", age_bins, age_labels)
-
-    # Calculate distances
-    test_df_cat_job["distance"] = test_df_cat_job.apply(calculate_distance, axis=1)
-    logger.info("Geodesic distance calculated for each transaction.")
-
-    # Customer spending behavior
-    test_df_dist = generic_customer_spending_behaviour(test_df_cat_job, window_lengths=[1, 7, 30, 90, 180])
-    test_df_dist = general_customer_bahaviour(test_df_dist)
-    logger.info("Customer spending behavior calculated.")
-
-    # Identify high-risk hours
-    test_df_dist["is_high_risk_hour"] = test_df_dist["transaction_hour"].apply(
-        lambda x: 2 if x in [22, 23] else (1 if x in [0, 1, 2, 3] else 0)
+    # Merge the statistics into a single DataFrame
+    daily_fraud_stats = (
+        transactions_per_day
+        .merge(fraud_transactions_per_day, on='trans_date', how='left')
+        .merge(fraud_cards_per_day, on='trans_date', how='left')
+        .fillna(0)  # Fill NaN values with 0
     )
-    logger.info("High-risk hours identified.")
 
-    # City size categorization
-    city_size_bins = [0, 88735, 1577385, float("inf")]
-    city_size_labels = [0, 1, 2]
-    test_df_dist["city_size"] = pd.cut(test_df_dist["city_pop"], bins=city_size_bins, labels=city_size_labels).astype("int64")
-    logger.info("City size categorization completed.")
-
-    # Merchant risk rolling window
-    test_df_merch_risk = get_merchant_risk_rolling_window(transactions=test_df_dist, delay_period=7, window_size=[1, 7, 30, 90, 180])
-    logger.info("Merchant risk rolling window calculated.")
-
-    # Save final DataFrame to CSV
-    test_df_merch_risk.to_csv("./data/processed/test_data.csv", index=False, header=True)
-    logger.info("Final data saved to 'data/processed/test_data.csv'.")
-    logger.info("Data preprocessing completed.")
-
-if __name__ == "__main__":
-    preprocess_data()
-
+    return daily_fraud_stats
