@@ -147,7 +147,7 @@ We created several notebooks to showcase the our workflow in the following order
 
 - [Modelling](https://github.com/ichbinlan99/Fraud-Detection-TR/blob/eda/notebooks/Modelling.ipynb)
 
-- [Evaluation](https://github.com/ichbinlan99/Fraud-Detection-TR/blob/eda/notebooks/Evaluation.ipynb)
+- [Eval](https://github.com/ichbinlan99/Fraud-Detection-TR/blob/eda/notebooks/Eval.ipynb)
 
 - [Data Drift](https://github.com/ichbinlan99/Fraud-Detection-TR/blob/eda/notebooks/Data_drift.ipynb)
 
@@ -162,7 +162,7 @@ FRAUD-DETECTION-TR/
 ├── notebooks/
 │   ├── Data_drift.ipynb
 │   ├── EDA.ipynb
-│   ├── Evaluation.ipynb
+│   ├── Eval.ipynb
 │   ├── Feature_engineering.ipynb
 │   ├── Modelling.ipynb
 ├── out/
