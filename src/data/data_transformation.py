@@ -1,17 +1,24 @@
-import warnings
-import pandas as pd
-import numpy as np
-import os  
-import sys
-sys.path.append(os.path.abspath(os.path.join('.', 'src')))
 import json
-import pickle
 import logging
+import os
+import pickle
+import sys
+import warnings
 from datetime import datetime
+
+sys.path.append(os.path.abspath(os.path.join(".", "src")))
+
+import numpy as np
+import pandas as pd
 from geopy.distance import geodesic
-from features.feature_engineering import generic_customer_spending_behaviour, general_customer_bahaviour, get_merchant_risk_rolling_window
-from features.feature_transformation import encode, categorize_jobs
 from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+from features.feature_engineering import (
+    generic_customer_spending_behaviour,
+    general_customer_spending_bahaviour,
+    get_merchant_risk_rolling_window,
+)
+from features.feature_transformation import encode, categorize_jobs
 
 
 # Set up logging
@@ -20,8 +27,9 @@ logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore")
 
+
 # Load datasets
-def load_data(path = './data/raw/tr_fincrime_test.csv'):
+def load_data(path="./data/raw/tr_fincrime_test.csv"):
     """
     Load train and test datasets.
     """
@@ -30,16 +38,18 @@ def load_data(path = './data/raw/tr_fincrime_test.csv'):
     logger.info(f"Loaded test and train datasets with shapes {test_df.shape}.")
     return test_df
 
+
 # Utility functions
 def load_encoder(path):
     """
     Load saved encoder from path.
     """
     logger.info(f"Loading encoder from {path}...")
-    with open(path, 'rb') as file:
+    with open(path, "rb") as file:
         loaded_label_encoder = pickle.load(file)
     logger.info(f"Encoder loaded from {path}.")
     return loaded_label_encoder
+
 
 def calculate_distance(row):
     """
@@ -48,6 +58,7 @@ def calculate_distance(row):
     cust_location = (row["lat"], row["long"])
     merch_location = (row["merch_lat"], row["merch_long"])
     return geodesic(cust_location, merch_location).miles
+
 
 def assign_age_group(df, dob_col, trans_time_col, bins, labels):
     """
@@ -61,17 +72,19 @@ def assign_age_group(df, dob_col, trans_time_col, bins, labels):
     logger.info("Age and age groups assigned.")
     return df
 
+
 def categorize_and_encode_jobs(df, column, job_categories, path):
     """
     Categorize jobs and encode the categories dynamically.
     """
     logger.info("Categorizing and encoding jobs...")
     df = categorize_jobs(df, column, job_categories)
-    with open(path, 'rb') as file:
+    with open(path, "rb") as file:
         loaded_label_encoder = pickle.load(file)
-    df['job_encoded'] = loaded_label_encoder.transform(df[['job_category']])
+    df["job_encoded"] = loaded_label_encoder.transform(df[["job_category"]])
     logger.info("Jobs categorized and encoded.")
     return df
+
 
 def scaleData(train_df, features):
     scaler = StandardScaler()
@@ -80,7 +93,10 @@ def scaleData(train_df, features):
         pickle.dump(scaler, f)
     return train_df
 
-def compute_daily_fraud_stats(df, date_col='trans_date_trans_time', fraud_col='is_fraud', card_col='cc_num'):
+
+def compute_daily_fraud_stats(
+    df, date_col="trans_date_trans_time", fraud_col="is_fraud", card_col="cc_num"
+):
     """
     Computes daily fraud statistics from a transaction DataFrame.
 
@@ -96,24 +112,37 @@ def compute_daily_fraud_stats(df, date_col='trans_date_trans_time', fraud_col='i
     """
     # Ensure the datetime column is converted to datetime type
     df[date_col] = pd.to_datetime(df[date_col])
-    
+
     # Extract the date part
-    df['trans_date'] = df[date_col].dt.date
+    df["trans_date"] = df[date_col].dt.date
 
     # Compute the number of transactions per day
-    transactions_per_day = df.groupby('trans_date').size().reset_index(name='num_transactions')
-    transactions_per_day['num_transactions_scaled'] = transactions_per_day['num_transactions'] / 100
+    transactions_per_day = (
+        df.groupby("trans_date").size().reset_index(name="num_transactions")
+    )
+    transactions_per_day["num_transactions_scaled"] = (
+        transactions_per_day["num_transactions"] / 100
+    )
 
     # Compute the number of fraudulent transactions and cards per day
     fraud_data = df[df[fraud_col] == 1]
-    fraud_transactions_per_day = fraud_data.groupby('trans_date').size().reset_index(name='num_fraud_transactions')
-    fraud_cards_per_day = fraud_data.groupby('trans_date')[card_col].nunique().reset_index(name='num_fraud_cards')
+    fraud_transactions_per_day = (
+        fraud_data.groupby("trans_date")
+        .size()
+        .reset_index(name="num_fraud_transactions")
+    )
+    fraud_cards_per_day = (
+        fraud_data.groupby("trans_date")[card_col]
+        .nunique()
+        .reset_index(name="num_fraud_cards")
+    )
 
     # Merge the statistics into a single DataFrame
     daily_fraud_stats = (
-        transactions_per_day
-        .merge(fraud_transactions_per_day, on='trans_date', how='left')
-        .merge(fraud_cards_per_day, on='trans_date', how='left')
+        transactions_per_day.merge(
+            fraud_transactions_per_day, on="trans_date", how="left"
+        )
+        .merge(fraud_cards_per_day, on="trans_date", how="left")
         .fillna(0)  # Fill NaN values with 0
     )
 

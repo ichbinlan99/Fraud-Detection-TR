@@ -1,11 +1,12 @@
 import json
-import pandas as pd
 import logging
 
-logging.basicConfig(level=logging.INFO)  # Set the log level to INFO
+import pandas as pd
+from rapidfuzz import fuzz, process
+
+logging.basicConfig(level=logging.INFO)  # Set log level to INFO
 logger = logging.getLogger(__name__)
 
-from rapidfuzz import fuzz, process
 
 def update_job_categories(test_jobs, json_file_path, threshold=70):
     """
@@ -20,7 +21,7 @@ def update_job_categories(test_jobs, json_file_path, threshold=70):
         None: Updates the JSON file in place.
     """
     # Load the existing JSON data
-    with open(json_file_path, 'r') as f:
+    with open(json_file_path, "r") as f:
         job_by_category = json.load(f)
 
     # Check for each job in the test dataset
@@ -41,7 +42,9 @@ def update_job_categories(test_jobs, json_file_path, threshold=70):
 
             for category, jobs in job_by_category.items():
                 # Get the best match in the current category
-                result = process.extractOne(test_job, jobs, scorer=fuzz.token_sort_ratio)
+                result = process.extractOne(
+                    test_job, jobs, scorer=fuzz.token_sort_ratio
+                )
                 if result:  # Check if result is not None
                     match, score, _ = result  # Extract match and score
                     if score > best_score:
@@ -56,9 +59,8 @@ def update_job_categories(test_jobs, json_file_path, threshold=70):
                 job_by_category["Other"].append(test_job)
 
     # Save the updated JSON file
-    with open(json_file_path, 'w') as f:
+    with open(json_file_path, "w") as f:
         json.dump(job_by_category, f, indent=4)
-
 
 
 if __name__ == "__main__":

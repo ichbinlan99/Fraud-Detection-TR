@@ -1,10 +1,14 @@
 from datetime import datetime, timedelta
 import pandas as pd
 import logging
+
 logging.basicConfig(level=logging.INFO)  # Set the log level to INFO
 logger = logging.getLogger(__name__)
 
-def create_data_splits(df, date_column, freq='90D', rolling_window=90, gap=31, val_duration=90):
+
+def create_data_splits(
+    df, date_column, freq="90D", rolling_window=90, gap=31, val_duration=90
+):
     """
     Create rolling train-validation data splits from a time-indexed DataFrame.
 
@@ -40,21 +44,25 @@ def create_data_splits(df, date_column, freq='90D', rolling_window=90, gap=31, v
         val_end = min(val_end, end_date)
 
         if (train_end - train_start).days + 1 < rolling_window:
-            logger.info(f"Skipping split for date {date}: Training duration is less than {rolling_window} days.")
+            logger.info(
+                f"Skipping split for date {date}: Training duration is less than {rolling_window} days."
+            )
         elif (val_end - val_start).days + 1 < val_duration:
-            logger.info(f"Skipping split for date {date}: Validation duration is less than {val_duration} days.")
+            logger.info(
+                f"Skipping split for date {date}: Validation duration is less than {val_duration} days."
+            )
         else:
             if train_start < train_end and val_start < val_end:
                 train_df = df_sorted.loc[train_start:train_end]
                 val_df = df_sorted.loc[val_start:val_end]
 
-
                 yield {
-                    'train_df': train_df,
-                    'val_df': val_df,
-                    'train_dates': (train_df.index.min(), train_df.index.max()),
-                    'val_dates': (val_df.index.min(), val_df.index.max())
+                    "train_df": train_df,
+                    "val_df": val_df,
+                    "train_dates": (train_df.index.min(), train_df.index.max()),
+                    "val_dates": (val_df.index.min(), val_df.index.max()),
                 }
             else:
-                print(f"Skipping split for date {date}: Not enough data for train or validation set.")
-
+                print(
+                    f"Skipping split for date {date}: Not enough data for train or validation set."
+                )

@@ -1,6 +1,7 @@
 import os
 import signal
 
+
 def kill_process_on_port(port):
     """
     Terminates the process running on the specified port.
@@ -16,7 +17,7 @@ def kill_process_on_port(port):
     # Find the process ID (PID) using the port
     command = f"lsof -t -i:{port}"
     process = os.popen(command).read().strip()
-    
+
     if process:
         # Kill the process
         os.kill(int(process), signal.SIGKILL)
