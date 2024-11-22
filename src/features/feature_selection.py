@@ -1,4 +1,6 @@
+import pandas as pd
 from sklearn.classifier import RandomForestClassifier
+
 
 def get_feature_importance(df, input_feature, top_features):
     """
@@ -11,8 +13,12 @@ def get_feature_importance(df, input_feature, top_features):
     pd.DataFrame: A DataFrame containing the top features and their importance scores, sorted by importance in descending order.
     """
     clf = RandomForestClassifier(n_estimators=100, max_depth=2, random_state=0)
-    clf.fit(df[input_feature], y['is_fraud'])
+    clf.fit(df[input_feature], df["is_fraud"])
     feature_importances = clf.feature_importances_
-    feature_importances = pd.DataFrame({'feature': input_feature, 'importance': feature_importances})
-    feature_importances = feature_importances.sort_values('importance', ascending=False)[:top_features]
+    feature_importances = pd.DataFrame(
+        {"feature": input_feature, "importance": feature_importances}
+    )
+    feature_importances = feature_importances.sort_values(
+        "importance", ascending=False
+    )[:top_features]
     return feature_importances

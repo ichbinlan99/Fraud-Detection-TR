@@ -27,6 +27,8 @@ This repository contains the implementation of a fraud detection model for credi
     - [Evaluation Metric](#evaluation-metric)
     - [Data Distribution Shifts](#data-distribution-shifts)
     - [Interpretability and Explainability](#interpretability-and-explainability)
+- [Final Results](#final-results)    
+- [Outlook](#outlook)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Jupyter Notebooks](#jupyter-notebooks)
@@ -60,7 +62,8 @@ The `generic_customer_spending_behaviour` and `general_customer_spending_behavio
     <img src="out/customer_spending_behaviour.png" width=1000>
 </p>
 
-The `get_merchant_risk_rolling_window` calculates a merchant's fraud risk score. The score is the average percentage of fraudulent transactions within several past time windows (defined by a list of window sizes), shifted back one week to account for fraud detection delays. The function outputs the risk score and the total number of transactions for each window size.
+The `get_merchant_risk_rolling_window` calculates a merchant's fraud risk score. The score is the average percentage of fraudulent transactions within several past time windows (defined by a list of window sizes), shifted back one week to account for fraud detection delays. The function outputs the risk score and the total number of transactions for each window size. During testing, we add the merchant risk score calculated from training set to the merchant of transaction by matching merchant name, latitute and longitute. For unseen merchant name or address, one could fill it with the average risk score anong the region(city/state). For simplicity, we fill it with 0.
+
 <p align="center">
     <img src="out/merchant_risk_factor.png" width=1000>
 </p>
@@ -84,6 +87,30 @@ This is calculated using the KL divergence and multiple data drift in amount wer
 ### Interpretability and Explainability
 This serves for future research. One possible way to do it is to print out the shapely value during training.
 
+## Final Results
+			
+| roc_auc | average precision | f1 score | top 50 |money loss | 
+|---|---|---|---|---|
+| 0.955  |  0.771 |  0.877 | 0.202 | 41311.61|
+
+<p align="left">
+    <img src="out/final_metric.png" width=450>
+</p>
+
+## Outlook
+
+For further study, I plan to delve into the following areas:
+
+- **Deep Learning**: Build my own transformer model (along with this, do ablation study, model calibration and validation...)
+
+- **Generative Modelling**: If I were given real data, I would also try to fit the data to a generative model for future synthetic data generation, sample path simulation...
+
+- **Explainability and Interpretability**: I would go deeper in exploring explainability and interpretability combined with domain knowledge
+
+- **Anomaly Detection**: I would investigate advanced techniques for detecting anomalies in the data, refining methodologies to gain deeper insights on imbalanced fraud transactions.
+
+- **Dynamic Causal Discovery**: I would conduct causal analysis on direct and early caused of a transaction being flagged using dynamic causal discovery (this still remain as higher level actiona and require demanding domain knowledge). The Markov blanket could then be leveraged for data imputation
+
 ## Installation
 To install the necessary dependencies, run the following command:
 1. Create your Virtual Environment
@@ -96,7 +123,6 @@ To install the necessary dependencies, run the following command:
     ```bash
     pip install -r requirements.txt
     ```
-
 ## Usage
 To use the fraud detection system, follow these steps:
 1. Clone the repository:
@@ -112,7 +138,6 @@ To use the fraud detection system, follow these steps:
     python create_data_testing.py
     ```
 
-
 ## Jupyter Notebooks
 We created several notebooks to showcase the our workflow in the following order:
 
@@ -125,6 +150,7 @@ We created several notebooks to showcase the our workflow in the following order
 - [Evaluation](https://github.com/ichbinlan99/Fraud-Detection-TR/blob/eda/notebooks/Evaluation.ipynb)
 
 - [Data Drift](https://github.com/ichbinlan99/Fraud-Detection-TR/blob/eda/notebooks/Data_drift.ipynb)
+
 ## Code Structure
 The repository is structured as follows:
 
