@@ -105,11 +105,13 @@ For further study, I plan to delve into the following areas:
 
 - **Generative Modelling**: If I were given real data, I would also try to fit the data to a generative model for future synthetic data generation, sample path simulation...
 
-- **Explainability and Interpretability**: I would go deeper in exploring explainability and interpretability combined with domain knowledge
+- **Explainability and Interpretability**: I would go deeper in exploring explainability and interpretability combined with domain knowledge.
 
 - **Anomaly Detection**: I would investigate advanced techniques for detecting anomalies in the data, refining methodologies to gain deeper insights on imbalanced fraud transactions.
 
-- **Dynamic Causal Discovery**: I would conduct causal analysis on direct and early caused of a transaction being flagged using dynamic causal discovery (this still remain as higher level actiona and require demanding domain knowledge). The Markov blanket could then be leveraged for data imputation
+- **Dynamic Causal Discovery**: I would conduct causal analysis on direct and early caused of a transaction being flagged using dynamic causal discovery (this still remain as higher level actiona and require demanding domain knowledge). The Markov blanket could then be leveraged for data imputation.
+
+- **Add Unit Test**: I would add unit tests to  verify the functionality of specific functions.
 
 ## Installation
 To install the necessary dependencies, run the following command:
