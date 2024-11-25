@@ -1,7 +1,7 @@
 # Fraud Detection for Trade Republic
 
 This repository contains the implementation of a fraud detection model for credit card transactions. The model is designed to identify and prevent fraudulent activities in credit card transaction operations. The issues addressed are: 
-1. [Categorical Feature Encodin](#categorical-feature-encoding)
+1. [Categorical Feature Encoding](#categorical-feature-encoding)
 
 2. [Feature Engineering](#feature-engineering)
 
@@ -36,7 +36,7 @@ This repository contains the implementation of a fraud detection model for credi
 - [License](#license)
 
 ## Introduction
-Fraud detection is a cost-sensitive challenge. Missing a fraudulent transaction incurs significant costs, including reimbursement, potential further fraud, customer service expenses, and reputational damage. False alerts on legitimate transactions generally involve lower costs, such as verification with the customer, but can cause inconvenience due to blocked payments. The detection reaction time is crucial; shorter reaction times can prevent more frauds.
+Fraud detection is a cost-sensitive challenge. Missing a fraudulent transaction incurs significant costs, including reimbursement, potential further fraud, customer service expenses, and reputational damage. False alerts on legitimate transactions generally involve lower costs, such as verification with the customer, but can cause inconvenience due to blocked payments. The detection reaction time is crucial, shorter reaction times can prevent more frauds.
 
 <p align="center">
     <img src="out/daily_transactions.png" width=1000>
@@ -145,7 +145,7 @@ We created several notebooks to showcase the our workflow in the following order
 
 - [EDA](https://github.com/ichbinlan99/Fraud-Detection-TR/blob/eda/notebooks/EDA.ipynb)
 
-- [Feature Engineering](https://github.com/ichbinlan99/Fraud-Detection-TR/blob/eda/notebooks/feature_engineering.ipynb)
+- [Feature Engineering](https://github.com/ichbinlan99/Fraud-Detection-TR/blob/eda/notebooks/Feature_engineering.ipynb)
 
 - [Modelling](https://github.com/ichbinlan99/Fraud-Detection-TR/blob/eda/notebooks/Modelling.ipynb)
 
