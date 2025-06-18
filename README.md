@@ -1,4 +1,4 @@
-# Fraud Detection for Trade Republic
+# Fraud Detection Model
 
 This repository contains the implementation of a fraud detection model for credit card transactions. The model is designed to identify and prevent fraudulent activities in credit card transaction operations. The issues addressed are: 
 1. [Categorical Feature Encoding](#categorical-feature-encoding)
